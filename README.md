@@ -1,4 +1,4 @@
-## архитектура
+## структура
 ![image](https://github.com/user-attachments/assets/3dd0eb17-68b6-4201-9d25-70d5167a05ff)
 ![image](https://github.com/user-attachments/assets/0ad77d0c-396b-48c2-9a4e-e84b34505478)
 
