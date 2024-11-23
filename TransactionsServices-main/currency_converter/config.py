@@ -1,0 +1,17 @@
+import os
+
+
+API_KEY = os.getenv("API_KEY", "EgSSOkHq7JOvza5QV10BYmcYjwXGUSC8")
+
+REDIS_HOST = os.getenv("REDIS_HOST", "redis")
+REDIS_PORT = os.getenv("REDIS_PORT", 6379)
+
+KAFKA_BROKER_HOST = os.getenv("KAFKA_BROKER_HOST", "localhost")
+KAFKA_BROKER_PORT = os.getenv("KAFKA_BROKER_PORT", 9092)
+KAFKA_CONNECTION_STRING = f"{KAFKA_BROKER_HOST}:{KAFKA_BROKER_PORT}"
+
+AVAIBLE_CURRENCY = [
+    "USD",
+    "RUB",
+    "EUR",
+]

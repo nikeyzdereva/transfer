@@ -1,0 +1,7 @@
+import os
+
+
+KAFKA_BROKER_HOST = os.getenv("KAFKA_BROKER_HOST", "localhost")
+KAFKA_BROKER_PORT = os.getenv("KAFKA_BROKER_PORT", 9092)
+KAFKA_CONNECTION_STRING = f"{KAFKA_BROKER_HOST}:{KAFKA_BROKER_PORT}"
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "transactions")

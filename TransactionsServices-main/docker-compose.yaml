@@ -1,0 +1,122 @@
+version: "3"
+
+services:
+  notification:
+    container_name: notification_service
+    build:
+      context: notifications
+      dockerfile: DockerFile
+    env_file:
+      ".env"
+    depends_on:
+      - center
+    networks:
+      - sharednet
+
+  transfer:
+    container_name: money_transfer_service
+    build:
+      context: money_transfer
+      dockerfile: DockerFile
+    env_file:
+      ".env"
+    depends_on:
+      - center
+    networks:
+      - sharednet
+
+  converter:
+    container_name: convert_currency_service
+    build:
+      context: currency_converter
+      dockerfile: DockerFile
+    env_file:
+      ".env"
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgresql:
+        condition: service_healthy
+    networks:
+      - sharednet
+
+  center:
+    container_name: center_service
+    build:
+      context: central
+      dockerfile: DockerFile
+    env_file:
+      ".env"
+    ports:
+      - '8081:8081'
+    depends_on:
+      - kafka
+      - converter
+    networks:
+      - sharednet
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - '2181:2181'
+    networks:
+      - sharednet
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    env_file:
+      ".env"
+    ports:
+      - '9092:9092'
+    depends_on:
+      - zookeeper
+    networks:
+      - sharednet
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_INTERNAL://kafka:29092,LISTENER_EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INTERNAL:PLAINTEXT,LISTENER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_INTERNAL
+
+  redis:
+    image: redis:latest
+    env_file:
+      ".env"
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+    networks:
+      - sharednet
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  postgresql:
+    image: postgres:latest
+    container_name: postgresql
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 10s
+      retries: 5
+    ports:
+      - 5433:5432
+    networks:
+      - sharednet
+
+volumes:
+  redis_data:
+    driver: local
+  kafka_data:
+    driver: local
+  
+networks:
+    sharednet:
+        driver: bridge

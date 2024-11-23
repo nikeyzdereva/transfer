@@ -1,0 +1,4 @@
+redis
+kafka-python
+apscheduler
+httpx
